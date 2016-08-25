@@ -9,13 +9,30 @@
     <body ng-controller="ChatController">
         <a ng-show="!loggedIn" href="{{loginUri}}">Log in</a>
         <section ng-show="loggedIn">
-            <p>Logged in as {{user.name}}.</p>
-            <h2>List of registered users</h2>
-            <ul>
-                <li ng-repeat="user in users">
-                    {{user.name}}
-                </li>
-            </ul>
+                <p>Logged in as {{user.name}}.</p>
+                <h2>List of registered users</h2>
+                <ul>
+                    <li ng-repeat="user in users">
+                        {{user.name}}
+                        <button ng-click="startConversation(user.id)">Start a conversation</button>
+                    </li>
+                </ul>
+                <h2>Conversations</h2>
+                <ul>
+                    <li ng-repeat="conversation in conversations">
+                    Talking with {{ notYou(conversation.participants)[0] }}
+                    </li>
+                </ul>
+                <div style="border-style: solid" ng-repeat="conversation in conversations">
+                    Talking about
+                    {{ conversation.topic }} with
+                    {{ notYou(conversation.participants)[0] }}
+                    <div ng-repeat="message in conversation.messages track by $index">
+                        {{ message.sender }}: {{ message.message }}
+                    </div>
+                    <input type="text" ng-model="messageText">
+                    <button ng-click="sendMessage(conversation.id, messageText)">Send a message</button>
+                </div>
         </section>
     </body>
 </html>
