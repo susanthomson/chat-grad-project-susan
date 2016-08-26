@@ -15,73 +15,64 @@
                 chatService.getConversations($scope.user._id)
                     .then(function (conversations) {
                         $scope.conversations = conversations;
+                        $scope.conversations.forEach(function(conversation) {
+                            conversation.lastModified = conversation.messages[conversation.messages.length - 1]
+                                .timestamp;
+                        });
                     });
             }
 
             getConversations();
 
+            $scope.conversationWindow = {
+                activeConversationId: undefined
+            };
+
+            $scope.setActiveConversation = function(id) {
+                chatService.getConversation(id).then(
+                    function (conversation) {
+                        $scope.activeConversation = conversation;
+                        $scope.conversationWindow.activeConversationId = $scope.activeConversation.id;
+                    }
+                );
+            };
+
             $scope.notYou  = function(participants) {
-                return participants.filter(function(participant) {
-                    return participant !== $scope.user._id;
-                });
+                return chatService.notYou($scope.user._id, participants);
+            };
+
+            $scope.conversationExists = function(participants) {
+                return $scope.conversations.reduce(function(prev, conversation) {
+                    if (conversation.participants[0] === participants[0] &&
+                        conversation.participants[1] === participants[1]) {
+                        return conversation.id;
+                    }
+                    return prev;
+                }, undefined);
             };
 
             $scope.startConversation = function(participantId) {
-                chatService.startConversation($scope.user._id, participantId, "stuff")
-                    .then(getConversations);
+                //if convo doesn't exist
+                var exists = $scope.conversationExists([$scope.user._id, participantId].sort());
+                if (exists) {
+                    $scope.setActiveConversation(exists);
+                } else {
+                    chatService.startConversation($scope.user._id, participantId, "stuff")
+                        .then(function (res) {
+                            getConversations();
+                            $scope.setActiveConversation(res.id);
+                        });
+                }
             };
 
-            $scope.sendMessage = function(conversationId, messageText) {
-                chatService.sendMessage($scope.user._id, conversationId, messageText)
-                    .then(getConversations);
-            };
-
-            var id = setInterval(getConversations, 10000);
+            var id = setInterval(function () {
+                getConversations();
+            }, 2000);
 
         }, function() {
             $http.get("/api/oauth/uri").then(function(result) {
                 $scope.loginUri = result.data.uri;
             });
         });
-    }]);
-
-    app.service("chatService", ["$http", function ($http) {
-
-        this.startConversation = function(userId, partnerID, topic) {
-            var participants = [userId, partnerID].sort();
-            var body = {
-                participants: participants,
-                topic: topic,
-                messages: []
-            };
-            return $http.post("/api/conversations", body, {
-                headers: {"Content-type": "application/json"}
-            });
-        };
-
-        this.getConversations = function(userId) {
-            return $http.get("/api/conversations?participant=" + userId)
-                .then(function(result) {
-                    return result.data;
-                });
-        };
-
-        this.getConversation = function(conversationId) {
-            return $http.get("/api/conversations/" + conversationId)
-                .then(function(result) {
-                    return result.data;
-                });
-        };
-
-        this.sendMessage = function(userId, conversationId, messageText) {
-            var body = {
-                userId: userId,
-                message: messageText
-            };
-            return $http.put("/api/conversations/" + conversationId, body, {
-                headers: {"Content-type": "application/json"}
-            });
-        };
-
     }]);
 })();

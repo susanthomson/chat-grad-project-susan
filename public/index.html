@@ -5,6 +5,8 @@
         <title>Chat</title>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular.min.js"></script>
         <script src="js/main.js"></script>
+        <script src="js/chatService.js"></script>
+        <script src="js/ConversationController.js"></script>
     </head>
     <body ng-controller="ChatController">
         <a ng-show="!loggedIn" href="{{loginUri}}">Log in</a>
@@ -12,26 +14,36 @@
                 <p>Logged in as {{user.name}}.</p>
                 <h2>List of registered users</h2>
                 <ul>
-                    <li ng-repeat="user in users">
-                        {{user.name}}
-                        <button ng-click="startConversation(user.id)">Start a conversation</button>
+                    <li ng-repeat="usero in users">
+                        {{usero.name}}
+                        <button ng-if="usero.name!=user.name" ng-click="startConversation(usero.id)">chat</button>
                     </li>
                 </ul>
                 <h2>Conversations</h2>
                 <ul>
-                    <li ng-repeat="conversation in conversations">
-                    Talking with {{ notYou(conversation.participants)[0] }}
+                    <li ng-repeat="conversation in conversations | orderBy: '-lastModified'" ng-click="setActiveConversation(conversation.id)">
+                    {{ conversation.topic }} with {{ notYou(conversation.participants)[0] }}
                     </li>
                 </ul>
-                <div style="border-style: solid" ng-repeat="conversation in conversations">
-                    Talking about
-                    {{ conversation.topic }} with
-                    {{ notYou(conversation.participants)[0] }}
-                    <div ng-repeat="message in conversation.messages track by $index">
-                        {{ message.sender }}: {{ message.message }}
+                <div ng-controller="ConversationController" ng-if="conversationWindow.activeConversationId" style="border-style: solid">
+                    <div ng-click="showTopicChange = !showTopicChange">
+                        Talking about
+                        {{ activeConversation.topic }} with
+                        {{ notYou(activeConversation.participants)[0] }}
                     </div>
-                    <input type="text" ng-model="messageText">
-                    <button ng-click="sendMessage(conversation.id, messageText)">Send a message</button>
+                    <div ng-show="showTopicChange">
+                        <input type="text" ng-model="conversationWindow.topicText">
+                        <button ng-click="changeTopic(activeConversation.id, conversationWindow.topicText)">Change topic</button>
+                        <button ng-click="clearMessages(activeConversation.id)">Clear conversation</button>
+                    </div>
+                    <div ng-repeat="message in activeConversation.messages track by $index">
+                        on {{ message.timestamp | date: "shortDate" }} at  {{ message.timestamp | date: "shortTime" }},
+                        {{ message.sender }}
+                        <span ng-if="message.system">***{{ message.message }} ***</span>
+                        <span ng-if="!message.system">said: {{ message.message }} </span>
+                    </div>
+                    <input type="text" ng-model="conversationWindow.messageText">
+                    <button ng-click="sendMessage(activeConversation.id, conversationWindow.messageText)">Send a message</button>
                 </div>
         </section>
     </body>

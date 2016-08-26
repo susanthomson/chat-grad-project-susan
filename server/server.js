@@ -130,7 +130,12 @@ module.exports = function(port, db, githubAuthoriser) {
             _id: ObjectId(req.params.id)
         }, function(err, conversation) {
             if (!err) {
-                res.json(conversation);
+                res.json({
+                    id: conversation._id,
+                    participants: conversation.participants,
+                    topic: conversation.topic,
+                    messages: conversation.messages
+                });
             } else {
                 res.sendStatus(500);
             }
@@ -147,9 +152,17 @@ module.exports = function(port, db, githubAuthoriser) {
                         conversations.insertOne({
                             participants: req.body.participants,
                             topic: req.body.topic,
-                            messages: req.body.messages
+                            messages: [{
+                                sender: req.body.userId,
+                                message: "started conversation",
+                                system: true,
+                                timestamp: Date.now()
+                            }]
+                        }, function(err, doc) {
+                            res.status(201).json({
+                                id: doc.insertedId
+                            });
                         });
-                        res.sendStatus(201);
                     } else {
                         res.sendStatus(200);
                     }
@@ -160,18 +173,51 @@ module.exports = function(port, db, githubAuthoriser) {
     });
 
     app.put("/api/conversations/:id", function(req, res) {
+        var update = {};
+        if (req.body.message) {
+            update = {
+                $push: {
+                    messages: {
+                        sender: req.body.userId,
+                        message: req.body.message,
+                        timestamp: Date.now()
+                    }
+                }
+            };
+        }
+        if (req.body.topic) {
+            update = {
+                $set: {
+                    topic: req.body.topic
+                },
+                $push: {
+                    messages: {
+                        sender: req.body.userId,
+                        message: "changed topic to " + req.body.topic,
+                        system: true,
+                        timestamp: Date.now()
+                    }
+                }
+            };
+        }
+        if (req.body.messages) {
+            update = {
+                $set: {
+                    messages: [{
+                        sender: req.body.userId,
+                        message: "cleared conversation",
+                        system: true,
+                        timestamp: Date.now()
+                    }]
+                }
+            };
+        }
         conversations.findAndModify(
             {
                 _id: ObjectId(req.params.id)
             },
             [],
-            {
-                $push: {
-                    messages: {
-                        sender: req.body.userId, message: req.body.message
-                    }
-                }
-            },
+            update,
             function(err, docs) {
                 if (!err) {
                     res.json(docs);

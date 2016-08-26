@@ -385,7 +385,7 @@ describe("server", function() {
                 dbCollections.conversations.findOne.callsArgWith(1, null, testConversation2);
                 request({url: requestUrl, jar: cookieJar}, function(error, response, body) {
                     assert.deepEqual(JSON.parse(body), {
-                        "_id": {
+                        "id": {
                             "$oid": "57bd5e3ff46b866009257c99"
                         },
                         "participants": [
@@ -575,8 +575,14 @@ describe("server", function() {
         function(done) {
             authenticateUser(testUser, testToken, function() {
                 dbCollections.conversations.findOne.callsArgWith(1, null, undefined);
+                dbCollections.conversations.insertOne = sinon.stub();
+                dbCollections.conversations.insertOne.callsArgWith(1, null, {insertedId: 0});
+                Date.now = function () {
+                    return 0;
+                };
                 request({method: "POST", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
+                    userId: "bob",
                     participants: "participants",
                     topic: "topic",
                     messages: []
@@ -584,11 +590,16 @@ describe("server", function() {
                 headers: {"Content-type": "application/json"}},
                 function(error, response) {
                     assert.equal(response.statusCode, 201);
-                    assert(dbCollections.conversations.insertOne.calledOnce);
-                    assert.deepEqual(dbCollections.conversations.insertOne.firstCall.args[0], {
+                    sinon.assert.calledOnce(dbCollections.conversations.insertOne);
+                    sinon.assert.calledWith(dbCollections.conversations.insertOne, {
                         participants: "participants",
                         topic: "topic",
-                        messages: []
+                        messages: [{
+                            message: "started conversation",
+                            sender: "bob",
+                            system: true,
+                            timestamp: 0
+                        }]
                     });
                     done();
                 });
@@ -653,8 +664,39 @@ describe("server", function() {
                 dbCollections.conversations.findAndModify.callsArgWith(3, null, testConversation);
                 request({method: "PUT", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
-                    participants: "participants",
+                    userId: 0,
+                    message: "hello"
+                }),
+                headers: {"Content-type": "application/json"}},
+                function(error, response) {
+                    assert.equal(response.statusCode, 200);
+                    done();
+                });
+            });
+        });
+        it("responds with status code 200 if user is authenticated and conversation exists",
+        function(done) {
+            authenticateUser(testUser, testToken, function() {
+                dbCollections.conversations.findAndModify.callsArgWith(3, null, testConversation);
+                request({method: "PUT", url: requestUrl, jar: cookieJar,
+                body: JSON.stringify({
+                    userId: 0,
                     topic: "topic",
+                }),
+                headers: {"Content-type": "application/json"}},
+                function(error, response) {
+                    assert.equal(response.statusCode, 200);
+                    done();
+                });
+            });
+        });
+        it("responds with status code 200 if user is authenticated and conversation exists",
+        function(done) {
+            authenticateUser(testUser, testToken, function() {
+                dbCollections.conversations.findAndModify.callsArgWith(3, null, testConversation);
+                request({method: "PUT", url: requestUrl, jar: cookieJar,
+                body: JSON.stringify({
+                    userId: 0,
                     messages: []
                 }),
                 headers: {"Content-type": "application/json"}},
