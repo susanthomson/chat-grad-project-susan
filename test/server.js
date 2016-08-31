@@ -544,6 +544,48 @@ describe("server", function() {
                 });
             });
         });
+        it("responds with a body that is a JSON representation of a conversation" +
+        " if user is authenticated when called with two participant query string ", function(done) {
+            authenticateUser(testUser, testToken, function() {
+                allConversations.toArray.callsArgWith(0, null, [
+                        testConversation
+                ]);
+
+                request({url: requestUrl + "?participant=bob&secondParticipant=charlie", jar: cookieJar},
+                function(error, response, body) {
+                    assert.deepEqual(JSON.parse(body),
+                        {
+                            "id": {
+                                "$oid": "57bc4c711aee92c01976585a"
+                            },
+                            "participants": [
+                                "bob",
+                                "charlie"
+                            ],
+                            "topic": "fun stuff",
+                            "messages": [
+                                {
+                                    "sender": "bob",
+                                    "message": "hi"
+                                }
+                            ]
+                        }
+                    );
+                    done();
+                });
+            });
+        });
+        it("responds with status code 404 if no results" +
+        " if user is authenticated when called with query string ", function(done) {
+            authenticateUser(testUser, testToken, function() {
+                allConversations.toArray.callsArgWith(0, null, []);
+
+                request({url: requestUrl + "?participant=bob", jar: cookieJar}, function(error, response) {
+                    assert.equal(response.statusCode, 404);
+                    done();
+                });
+            });
+        });
         it("responds with status code 500 if database error", function(done) {
             authenticateUser(testUser, testToken, function() {
                 allConversations.toArray.callsArgWith(0, {err: "Database failure"}, null);

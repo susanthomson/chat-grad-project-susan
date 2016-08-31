@@ -2,6 +2,10 @@
     var app = angular.module("ChatApp");
     app.service("chatService", ["$http", function ($http) {
 
+        var self = this;
+        this.activeConversationId = undefined;
+        this.lastRead = {};
+
         this.startConversation = function(userId, partnerID, topic) {
             var participants = [userId, partnerID].sort();
             var body = {
@@ -16,6 +20,23 @@
             });
         };
 
+        this.getUsers = function () {
+            return $http.get("/api/users")
+                .then(function(result) {
+                    return result.data;
+                }).then(function (users) {
+                    self.users = users;
+                    return self.users;
+                });
+        };
+
+        self.getUsers();
+        this.screenName  = function(userId) {
+            return self.users.find(function(user) {
+                return user.id === userId;
+            }).name;
+        };
+
         this.getConversations = function(userId) {
             return $http.get("/api/conversations?participant=" + userId)
                 .then(function(result) {
@@ -28,6 +49,16 @@
                 .then(function(result) {
                     return result.data;
                 });
+        };
+
+        this.getConversationWith = function(userId, participantId) {
+            return $http.get("/api/conversations/?participant=" + userId + "&secondParticipant=" + participantId)
+                .then(function(result) {
+                    return result.data;
+                }).catch(function (err) {
+                    return self.startConversation(userId, participantId, "new conversation");
+                });
+
         };
 
         this.sendMessage = function(userId, conversationId, messageText) {
@@ -57,12 +88,6 @@
             };
             return $http.put("/api/conversations/" + conversationId, body, {
                 headers: {"Content-type": "application/json"}
-            });
-        };
-
-        this.notYou  = function(userId, participants) {
-            return participants.filter(function(participant) {
-                return participant !== userId;
             });
         };
 

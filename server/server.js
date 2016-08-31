@@ -104,21 +104,42 @@ module.exports = function(port, db, githubAuthoriser) {
 
     app.get("/api/conversations", function(req, res) {
         var query = {};
-        if (req.query.participant) {
+        var expectingOne = false;
+        if (req.query.secondParticipant) {
+            expectingOne = true;
+            query = {
+                participants: {
+                    $all: [req.query.participant , req.query.secondParticipant]
+                }
+            };
+        } else if (req.query.participant) {
             query = {
                 participants: req.query.participant
             };
         }
         conversations.find(query).toArray(function(err, docs) {
             if (!err) {
-                res.json(docs.map(function(conversation) {
-                    return {
+                if (docs.length === 0) {
+                    res.sendStatus(404);
+                } else if (expectingOne && docs.length === 1) {
+                    var conversation = docs[0];
+                    res.json({
                         id: conversation._id,
                         participants: conversation.participants,
                         topic: conversation.topic,
                         messages: conversation.messages
-                    };
-                }));
+                    });
+                } else {
+                    res.json(docs.map(function(conversation) {
+                        return {
+                            id: conversation._id,
+                            participants: conversation.participants,
+                            topic: conversation.topic,
+                            messages: conversation.messages
+                        };
+                    }));
+                }
+                //expecting one but got > 1?
             } else {
                 res.sendStatus(500);
             }
