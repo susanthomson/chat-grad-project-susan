@@ -46,4 +46,16 @@
         var id = setInterval(updateConversation, 1000);
 
     }]);
+
+    app.directive("chatAppConversation", function() {
+        return {
+            scope: {
+                user: "="
+            },
+            templateUrl: "conversation.html",
+            replace: true,
+            controller: "ConversationController"
+        };
+    });
+
 })();
