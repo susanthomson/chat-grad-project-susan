@@ -8,7 +8,7 @@
     </head>
     <body ng-controller="ChatController">
         <a ng-show="!loggedIn" href="{{loginUri}}">Log in</a>
-        <section ng-show="loggedIn">
+        <section ng-if="loggedIn">
                 <p>Logged in as {{user.name}}.</p>
                 <div ng-controller="UserListController" ng-if="user._id">
                     <h2 ng-click="showSearch = !showSearch">List of registered users</h2>
@@ -22,16 +22,7 @@
                         </li>
                     </ul>
                 </div>
-                <div ng-controller="ConversationListController" ng-if="user._id">
-                    <h2>Conversations</h2>
-                    <ul>
-                        <li ng-repeat="conversation in conversations | orderBy: '-lastModified'" ng-click="setActiveConversation(conversation.id)">
-                            {{ conversation.topic }} with 
-                            <span ng-repeat="participant in conversation.participants | notUser:user._id"> {{ participant | screenName }}</span>
-                            <span ng-show="conversation.newMessages">***new messages***<span>
-                        </li>
-                    </ul>
-                </div>
+                <chat-app-conversation-list user="user"></chat-app-conversation-list>
                 <chat-app-conversation user="user"></chat-app-conversation>
         </section>
     </body>
