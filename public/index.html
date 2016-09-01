@@ -4,18 +4,15 @@
         <meta charset="utf-8">
         <title>Chat</title>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular.min.js"></script>
-        <script src="js/main.js"></script>
+        <script src="bundle.js"></script>
     </head>
     <body ng-controller="ChatController">
         <a ng-show="!loggedIn" href="{{loginUri}}">Log in</a>
-        <section ng-show="loggedIn">
+        <section ng-if="loggedIn">
             <p>Logged in as {{user.name}}.</p>
-            <h2>List of registered users</h2>
-            <ul>
-                <li ng-repeat="user in users">
-                    {{user.name}}
-                </li>
-            </ul>
+            <chat-app-user-list user="user"></chat-app-user-list>
+            <chat-app-conversation-list user="user"></chat-app-conversation-list>
+            <chat-app-conversation user="user"></chat-app-conversation>
         </section>
     </body>
 </html>

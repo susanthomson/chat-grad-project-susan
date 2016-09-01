@@ -4,7 +4,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-mocha-test");
     grunt.loadNpmTasks("grunt-mocha-istanbul");
 
-    var files = ["Gruntfile.js", "server.js", "server/**/*.js", "test/**/*.js", "public/**/*.js"];
+    var files = ["Gruntfile.js", "server.js", "server/**/*.js", "test/**/*.js", "public/**/*.js", "!public/bundle.js"];
     var artifactsLocation = "build_artifacts";
 
     grunt.initConfig({
