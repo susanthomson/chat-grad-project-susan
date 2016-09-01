@@ -52,7 +52,7 @@
             scope: {
                 user: "="
             },
-            templateUrl: "conversation.html",
+            templateUrl: "app/conversation/conversation.html",
             replace: true,
             controller: "ConversationController"
         };
