@@ -21,4 +21,16 @@
         };
 
     }]);
+
+    app.directive("chatAppUserList", function() {
+        return {
+            scope: {
+                user: "="
+            },
+            templateUrl: "app/userList/userList.html",
+            replace: true,
+            controller: "UserListController"
+        };
+    });
+
 })();
