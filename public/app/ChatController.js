@@ -1,5 +1,5 @@
 (function() {
-    var app = angular.module("ChatApp", []);
+    var app = angular.module("ChatApp");
 
     app.controller("ChatController", ["$scope", "$http", "chatService",
     function($scope, $http, chatService) {
