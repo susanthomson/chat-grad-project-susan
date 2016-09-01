@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "start": "webpack"
   },
   "repository": {
     "type": "git",
@@ -25,7 +26,8 @@
     "grunt-mocha-test": "^0.12.7",
     "istanbul": "^0.3.17",
     "mocha": "^2.2.5",
-    "sinon": "^1.15.4"
+    "sinon": "^1.15.4",
+    "webpack": "^1.13.2"
   },
   "dependencies": {
     "URIjs": "^1.15.1",
