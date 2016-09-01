@@ -35,16 +35,4 @@
         }, 2000);
 
     }]);
-
-    app.directive("chatAppConversationList", function() {
-        return {
-            scope: {
-                user: "="
-            },
-            templateUrl: "app/conversationList/conversationList.html",
-            replace: true,
-            controller: "ConversationListController"
-        };
-    });
-
 })();
