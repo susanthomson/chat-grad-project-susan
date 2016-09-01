@@ -3,10 +3,10 @@
     app.service("chatService", ["$http", function ($http) {
 
         var self = this;
-        this.activeConversationId = undefined;
-        this.lastRead = {};
+        self.activeConversationId = undefined;
+        self.lastRead = {};
 
-        this.startConversation = function(userId, partnerID, topic) {
+        self.startConversation = function(userId, partnerID, topic) {
             var participants = [userId, partnerID].sort();
             var body = {
                 userId: userId,
@@ -20,7 +20,7 @@
             });
         };
 
-        this.getUsers = function () {
+        self.getUsers = function () {
             return $http.get("/api/users")
                 .then(function(result) {
                     return result.data;
@@ -31,27 +31,27 @@
         };
 
         self.getUsers();
-        this.screenName  = function(userId) {
+        self.screenName  = function(userId) {
             return self.users.find(function(user) {
                 return user.id === userId;
             }).name;
         };
 
-        this.getConversations = function(userId) {
+        self.getConversations = function(userId) {
             return $http.get("/api/conversations?participant=" + userId)
                 .then(function(result) {
                     return result.data;
                 });
         };
 
-        this.getConversation = function(conversationId) {
+        self.getConversation = function(conversationId) {
             return $http.get("/api/conversations/" + conversationId)
                 .then(function(result) {
                     return result.data;
                 });
         };
 
-        this.getConversationWith = function(userId, participantId) {
+        self.getConversationWith = function(userId, participantId) {
             return $http.get("/api/conversations/?participant=" + userId + "&secondParticipant=" + participantId)
                 .then(function(result) {
                     return result.data;
@@ -61,7 +61,7 @@
 
         };
 
-        this.sendMessage = function(userId, conversationId, messageText) {
+        self.sendMessage = function(userId, conversationId, messageText) {
             var body = {
                 userId: userId,
                 message: messageText
@@ -71,7 +71,7 @@
             });
         };
 
-        this.changeTopic = function(userId, conversationId, topic) {
+        self.changeTopic = function(userId, conversationId, topic) {
             var body = {
                 topic: topic,
                 userId: userId,
@@ -81,7 +81,7 @@
             });
         };
 
-        this.clearMessages = function(userId, conversationId) {
+        self.clearMessages = function(userId, conversationId) {
             var body = {
                 userId: userId,
                 messages: []
