@@ -112,6 +112,9 @@ module.exports = function(port, db, githubAuthoriser) {
             query = {
                 participants: {
                     $all: [req.query.participant , req.session.user]
+                },
+                groupName: {
+                    $exists: false
                 }
             };
         }
@@ -125,7 +128,8 @@ module.exports = function(port, db, githubAuthoriser) {
                         id: conversation._id,
                         participants: conversation.participants,
                         topic: conversation.topic,
-                        messages: conversation.messages
+                        messages: conversation.messages,
+                        groupName: conversation.groupName
                     });
                 } else {
                     res.json(docs.map(function(conversation) {
@@ -133,7 +137,8 @@ module.exports = function(port, db, githubAuthoriser) {
                             id: conversation._id,
                             participants: conversation.participants,
                             topic: conversation.topic,
-                            messages: conversation.messages
+                            messages: conversation.messages,
+                            groupName: conversation.groupName
                         };
                     }));
                 }
@@ -153,7 +158,8 @@ module.exports = function(port, db, githubAuthoriser) {
                     id: conversation._id,
                     participants: conversation.participants,
                     topic: conversation.topic,
-                    messages: conversation.messages
+                    messages: conversation.messages,
+                    groupName: conversation.groupName
                 });
             } else {
                 res.sendStatus(500);
@@ -165,36 +171,50 @@ module.exports = function(port, db, githubAuthoriser) {
         var participants = req.body.participants;
         participants.push(req.session.user);
         participants.sort();
-        conversations.findOne({
-            participants: participants
-        },
-            function(err, doc) {
-                if (!err) {
-                    if (!doc) {
-                        conversations.insertOne({
-                            participants: participants,
-                            topic: req.body.topic,
-                            messages: [{
-                                sender: req.session.user,
-                                message: "started conversation",
-                                system: true,
-                                timestamp: Date.now()
-                            }]
-                        }, function(err, doc) {
-                            res.status(201).json({
-                                id: doc.insertedId
-                            });
+        var findQuery = {
+            participants: participants,
+            groupName: {
+                $exists: false
+            }
+        };
+        var document = {
+            participants: participants,
+            topic: req.body.topic,
+            messages: [{
+                sender: req.session.user,
+                message: "started conversation",
+                system: true,
+                timestamp: Date.now()
+            }]
+        };
+        if (req.body.groupName) {
+            findQuery = {
+                _id: null
+            };
+            document.groupName = req.body.groupName;
+        }
+        conversations.findOne(findQuery, function(err, doc) {
+            if (!err) {
+                if (!doc) {
+                    conversations.insertOne(document,
+                     function(err, doc) {
+                        res.status(201).json({
+                            id: doc.insertedId
                         });
-                    } else {
-                        res.sendStatus(200);
-                    }
+                    });
                 } else {
-                    res.sendStatus(500);
+                    res.sendStatus(200);
                 }
-            });
+            } else {
+                res.sendStatus(500);
+            }
+        });
     });
 
     app.put("/api/conversations/:id", function(req, res) {
+        var query = {
+            _id: ObjectId(req.params.id)
+        };
         var update = {};
         if (req.body.message) {
             update = {
@@ -234,15 +254,41 @@ module.exports = function(port, db, githubAuthoriser) {
                 }
             };
         }
+        if (req.body.participants) {
+            query = {
+                _id: ObjectId(req.params.id),
+                groupName: {
+                    $exists: true
+                }
+            };
+            if (req.body.participants === "leave") {
+                update = {
+                    $pull: {
+                        participants: req.session.user
+                    }
+                };
+            } else {
+                update = {
+                    $push: {
+                        participants: {
+                            $each: req.body.participants
+                        }
+                    }
+                };
+            }
+        }
         conversations.findAndModify(
-            {
-                _id: ObjectId(req.params.id)
-            },
+            query,
             [],
             update,
-            function(err, docs) {
+            function(err, doc) {
                 if (!err) {
-                    res.json(docs);
+                    if (doc) {
+                        res.json(doc);
+                    }
+                    else {
+                        res.sendStatus(404);
+                    }
                 } else {
                     res.sendStatus(500);
                 }

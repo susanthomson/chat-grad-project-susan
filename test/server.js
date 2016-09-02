@@ -55,6 +55,24 @@ var testConversation2 = {
         }
     ]
 };
+var testConversationGroup = {
+    "_id": {
+        "$oid": "57bd5e3ff46b866009257c99"
+    },
+    "participants": [
+        "bob",
+        "james",
+        "charlie"
+    ],
+    "groupName": "golf buddies",
+    "topic": "other stuff",
+    "messages": [
+        {
+            "sender": "bob",
+            "message": "yo"
+        }
+    ]
+};
 
 var testToken = "123123";
 var testExpiredToken = "987978";
@@ -613,7 +631,7 @@ describe("server", function() {
                 done();
             });
         });
-        it("adds conversation to database and responds with status code 201 " +
+        it("adds two person conversation to database and responds with status code 201 " +
         "if user is authenticated and conversation doesn't already exist",
         function(done) {
             authenticateUser(testGithubUser, testToken, function() {
@@ -646,7 +664,7 @@ describe("server", function() {
                 });
             });
         });
-        it("does not add conversation to database and responds with status code 200 " +
+        it("does not add two person conversation to database and responds with status code 200 " +
         "if user is authenticated and conversation already exists",
         function(done) {
             authenticateUser(testUser, testToken, function() {
@@ -660,6 +678,41 @@ describe("server", function() {
                 function(error, response) {
                     assert.equal(response.statusCode, 200);
                     assert(!dbCollections.conversations.insertOne.called);
+                    done();
+                });
+            });
+        });
+        it("adds group conversation to database and responds with status code 201 " +
+        "if user is authenticated and conversation doesn't already exist",
+        function(done) {
+            authenticateUser(testGithubUser, testToken, function() {
+                dbCollections.conversations.findOne.callsArgWith(1, null, undefined);
+                dbCollections.conversations.insertOne = sinon.stub();
+                dbCollections.conversations.insertOne.callsArgWith(1, null, {insertedId: 0});
+                Date.now = function () {
+                    return 0;
+                };
+                request({method: "POST", url: requestUrl, jar: cookieJar,
+                body: JSON.stringify({
+                    participants: ["charlie", "james"],
+                    topic: "topic",
+                    groupName: "pals"
+                }),
+                headers: {"Content-type": "application/json"}},
+                function(error, response) {
+                    assert.equal(response.statusCode, 201);
+                    sinon.assert.calledOnce(dbCollections.conversations.insertOne);
+                    sinon.assert.calledWith(dbCollections.conversations.insertOne, {
+                        participants: ["bob", "charlie", "james"],
+                        topic: "topic",
+                        groupName: "pals",
+                        messages: [{
+                            message: "started conversation",
+                            sender: "bob",
+                            system: true,
+                            timestamp: 0
+                        }]
+                    });
                     done();
                 });
             });
@@ -697,13 +750,12 @@ describe("server", function() {
                 done();
             });
         });
-        it("responds with status code 200 if user is authenticated and conversation exists",
+        it("sending message: responds with status code 200 if user is authenticated and conversation exists",
         function(done) {
             authenticateUser(testUser, testToken, function() {
                 dbCollections.conversations.findAndModify.callsArgWith(3, null, testConversation);
                 request({method: "PUT", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
-                    userId: 0,
                     message: "hello"
                 }),
                 headers: {"Content-type": "application/json"}},
@@ -713,13 +765,12 @@ describe("server", function() {
                 });
             });
         });
-        it("responds with status code 200 if user is authenticated and conversation exists",
+        it("updating topic: responds with status code 200 if user is authenticated and conversation exists",
         function(done) {
             authenticateUser(testUser, testToken, function() {
                 dbCollections.conversations.findAndModify.callsArgWith(3, null, testConversation);
                 request({method: "PUT", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
-                    userId: 0,
                     topic: "topic",
                 }),
                 headers: {"Content-type": "application/json"}},
@@ -729,14 +780,61 @@ describe("server", function() {
                 });
             });
         });
-        it("responds with status code 200 if user is authenticated and conversation exists",
+        it("clearing conversation: responds with status code 200 if user is authenticated and conversation exists",
         function(done) {
             authenticateUser(testUser, testToken, function() {
                 dbCollections.conversations.findAndModify.callsArgWith(3, null, testConversation);
                 request({method: "PUT", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
-                    userId: 0,
                     messages: []
+                }),
+                headers: {"Content-type": "application/json"}},
+                function(error, response) {
+                    assert.equal(response.statusCode, 200);
+                    done();
+                });
+            });
+        });
+        it("adding participants to group: responds with status code 200" +
+        "if user is authenticated and conversation exists and is group conversation",
+        function(done) {
+            authenticateUser(testUser, testToken, function() {
+                dbCollections.conversations.findAndModify.callsArgWith(3, null, testConversationGroup);
+                request({method: "PUT", url: requestUrl, jar: cookieJar,
+                body: JSON.stringify({
+                    participants: ["horace"]
+                }),
+                headers: {"Content-type": "application/json"}},
+                function(error, response) {
+                    assert.equal(response.statusCode, 200);
+                    done();
+                });
+            });
+        });
+        it("adding participants to group: responds with status code 404" +
+        "if user is authenticated and conversation exists and is not group conversation",
+        function(done) {
+            authenticateUser(testUser, testToken, function() {
+                dbCollections.conversations.findAndModify.callsArgWith(3, null, undefined);
+                request({method: "PUT", url: requestUrl, jar: cookieJar,
+                body: JSON.stringify({
+                    participants: ["horace"]
+                }),
+                headers: {"Content-type": "application/json"}},
+                function(error, response) {
+                    assert.equal(response.statusCode, 404);
+                    done();
+                });
+            });
+        });
+        it("leaving a group chat: responds with status code 200" +
+        "if user is authenticated and conversation exists and is group conversation",
+        function(done) {
+            authenticateUser(testUser, testToken, function() {
+                dbCollections.conversations.findAndModify.callsArgWith(3, null, testConversationGroup);
+                request({method: "PUT", url: requestUrl, jar: cookieJar,
+                body: JSON.stringify({
+                    participants: "leave"
                 }),
                 headers: {"Content-type": "application/json"}},
                 function(error, response) {
@@ -751,9 +849,7 @@ describe("server", function() {
                 dbCollections.conversations.findAndModify.callsArgWith(3, {err: "Database failure"}, null);
                 request({method: "PUT", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
-                    participants: "participants",
                     topic: "topic",
-                    messages: []
                 }),
                 headers: {"Content-type": "application/json"}},
                 function(error, response) {
