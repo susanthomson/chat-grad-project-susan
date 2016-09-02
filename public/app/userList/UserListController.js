@@ -13,7 +13,7 @@
         getUsers();
 
         $scope.chat = function(participantId) {
-            chatService.getConversationWith($scope.user._id, participantId)
+            chatService.getConversationWith(participantId)
                 .then(function (conversation) {
                     chatService.activeConversationId = conversation.id;
                     $rootScope.$emit("activeConversationChange", conversation.id);

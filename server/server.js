@@ -103,18 +103,16 @@ module.exports = function(port, db, githubAuthoriser) {
     });
 
     app.get("/api/conversations", function(req, res) {
-        var query = {};
+        var query = {
+            participants: req.session.user
+        };
         var expectingOne = false;
-        if (req.query.secondParticipant) {
+        if (req.query.participant) {
             expectingOne = true;
             query = {
                 participants: {
-                    $all: [req.query.participant , req.query.secondParticipant]
+                    $all: [req.query.participant , req.session.user]
                 }
-            };
-        } else if (req.query.participant) {
-            query = {
-                participants: req.query.participant
             };
         }
         conversations.find(query).toArray(function(err, docs) {
@@ -164,17 +162,20 @@ module.exports = function(port, db, githubAuthoriser) {
     });
 
     app.post("/api/conversations", function(req, res) {
+        var participants = req.body.participants;
+        participants.push(req.session.user);
+        participants.sort();
         conversations.findOne({
-            participants: req.body.participants
+            participants: participants
         },
             function(err, doc) {
                 if (!err) {
                     if (!doc) {
                         conversations.insertOne({
-                            participants: req.body.participants,
+                            participants: participants,
                             topic: req.body.topic,
                             messages: [{
-                                sender: req.body.userId,
+                                sender: req.session.user,
                                 message: "started conversation",
                                 system: true,
                                 timestamp: Date.now()
@@ -199,7 +200,7 @@ module.exports = function(port, db, githubAuthoriser) {
             update = {
                 $push: {
                     messages: {
-                        sender: req.body.userId,
+                        sender: req.session.user,
                         message: req.body.message,
                         timestamp: Date.now()
                     }
@@ -213,7 +214,7 @@ module.exports = function(port, db, githubAuthoriser) {
                 },
                 $push: {
                     messages: {
-                        sender: req.body.userId,
+                        sender: req.session.user,
                         message: "changed topic to " + req.body.topic,
                         system: true,
                         timestamp: Date.now()
@@ -225,7 +226,7 @@ module.exports = function(port, db, githubAuthoriser) {
             update = {
                 $set: {
                     messages: [{
-                        sender: req.body.userId,
+                        sender: req.session.user,
                         message: "cleared conversation",
                         system: true,
                         timestamp: Date.now()

@@ -19,7 +19,7 @@
         }
 
         $scope.sendMessage = function(conversationId, messageText) {
-            chatService.sendMessage($scope.user._id, conversationId, messageText)
+            chatService.sendMessage(conversationId, messageText)
                 .then(function () {
                     updateConversation();
                     $scope.conversationWindow.messageText = "";
@@ -27,7 +27,7 @@
         };
 
         $scope.changeTopic = function(conversationId, topicText) {
-            chatService.changeTopic($scope.user._id, conversationId, topicText)
+            chatService.changeTopic(conversationId, topicText)
                 .then(function () {
                     updateConversation();
                     $scope.conversationWindow.topicText = "";
@@ -36,7 +36,7 @@
         };
 
         $scope.clearMessages = function(conversationId) {
-            chatService.clearMessages($scope.user._id, conversationId)
+            chatService.clearMessages(conversationId)
                 .then(function () {
                     updateConversation();
                     $scope.conversationWindow.showTopicChange = false;

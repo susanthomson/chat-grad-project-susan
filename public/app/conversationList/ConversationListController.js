@@ -4,7 +4,7 @@
     function($scope, $rootScope, chatService) {
 
         function getConversations() {
-            return chatService.getConversations($scope.user._id)
+            return chatService.getConversations()
                 .then(function(conversations) {
                     $scope.conversations = conversations;
                     $scope.conversations.forEach(function(conversation) {

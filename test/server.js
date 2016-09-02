@@ -100,7 +100,7 @@ describe("server", function() {
             authCallback(user, token);
         });
 
-        dbCollections.users.findOne.callsArgWith(1, null, user);
+        dbCollections.users.findOne.callsArgWith(1, null, undefined);
 
         request(baseUrl + "/oauth", function(error, response) {
             cookieJar.setCookie(request.cookie("sessionToken=" + token), baseUrl);
@@ -213,7 +213,8 @@ describe("server", function() {
             });
         });
         it("responds with a body that is a JSON representation of the user if user is authenticated", function(done) {
-            authenticateUser(testUser, testToken, function() {
+            authenticateUser(testGithubUser, testToken, function() {
+                dbCollections.users.findOne.callsArgWith(1, null, testUser);
                 request({url: requestUrl, jar: cookieJar}, function(error, response, body) {
                     assert.deepEqual(JSON.parse(body), {
                         _id: "bob",
@@ -615,7 +616,7 @@ describe("server", function() {
         it("adds conversation to database and responds with status code 201 " +
         "if user is authenticated and conversation doesn't already exist",
         function(done) {
-            authenticateUser(testUser, testToken, function() {
+            authenticateUser(testGithubUser, testToken, function() {
                 dbCollections.conversations.findOne.callsArgWith(1, null, undefined);
                 dbCollections.conversations.insertOne = sinon.stub();
                 dbCollections.conversations.insertOne.callsArgWith(1, null, {insertedId: 0});
@@ -624,17 +625,15 @@ describe("server", function() {
                 };
                 request({method: "POST", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
-                    userId: "bob",
-                    participants: "participants",
-                    topic: "topic",
-                    messages: []
+                    participants: ["charlie"],
+                    topic: "topic"
                 }),
                 headers: {"Content-type": "application/json"}},
                 function(error, response) {
                     assert.equal(response.statusCode, 201);
                     sinon.assert.calledOnce(dbCollections.conversations.insertOne);
                     sinon.assert.calledWith(dbCollections.conversations.insertOne, {
-                        participants: "participants",
+                        participants: ["bob", "charlie"],
                         topic: "topic",
                         messages: [{
                             message: "started conversation",
@@ -654,9 +653,8 @@ describe("server", function() {
                 dbCollections.conversations.findOne.callsArgWith(1, null, testConversation);
                 request({method: "POST", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
-                    participants: "participants",
-                    topic: "topic",
-                    messages: []
+                    participants: ["participants"],
+                    topic: "topic"
                 }),
                 headers: {"Content-type": "application/json"}},
                 function(error, response) {
@@ -672,9 +670,8 @@ describe("server", function() {
                 dbCollections.conversations.findOne.callsArgWith(1, {err: "Database failure"}, null);
                 request({method: "POST", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
-                    participants: "participants",
-                    topic: "topic",
-                    messages: []
+                    participants: ["participants"],
+                    topic: "topic"
                 }),
                 headers: {"Content-type": "application/json"}},
                 function(error, response) {
