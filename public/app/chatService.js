@@ -6,11 +6,14 @@
         self.activeConversationId = undefined;
         self.lastRead = {};
 
-        self.startConversation = function(participants, topic) {
+        self.startConversation = function(participants, topic, groupName) {
             var body = {
                 participants: participants,
                 topic: topic,
             };
+            if (groupName) {
+                body.groupName = groupName;
+            }
             return $http.post("/api/conversations", body, {
                 headers: {"Content-type": "application/json"}
             }).then(function(result) {
@@ -80,6 +83,24 @@
         self.clearMessages = function(conversationId) {
             var body = {
                 messages: []
+            };
+            return $http.put("/api/conversations/" + conversationId, body, {
+                headers: {"Content-type": "application/json"}
+            });
+        };
+
+        self.addParticipants = function(conversationId, participants) {
+            var body = {
+                participants: participants
+            };
+            return $http.put("/api/conversations/" + conversationId, body, {
+                headers: {"Content-type": "application/json"}
+            });
+        };
+
+        self.leave = function(conversationId) {
+            var body = {
+                participants: "leave"
             };
             return $http.put("/api/conversations/" + conversationId, body, {
                 headers: {"Content-type": "application/json"}

@@ -43,6 +43,22 @@
                 });
         };
 
+        $scope.addParticipant = function(conversationId) {
+            chatService.addParticipants(conversationId, [$scope.conversationWindow.newParticipant])
+                .then(function () {
+                    updateConversation();
+                    $scope.conversationWindow.newParticipant = "";
+                    $scope.conversationWindow.add = false;
+                });
+        };
+
+        $scope.leave = function(conversationId) {
+            chatService.leave(conversationId)
+                .then(function () {
+                    updateConversation();
+                });
+        };
+
         var id = setInterval(updateConversation, 1000);
 
     }]);
