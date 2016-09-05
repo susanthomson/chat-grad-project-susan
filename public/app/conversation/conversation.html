@@ -1,28 +1,31 @@
 <div style="border-style: solid">
     <div ng-if="activeConversation">
-    <div ng-click="conversationWindow.showTopicChange = !conversationWindow.showTopicChange">
-        Talking about
-        {{ activeConversation.topic }} with
-        <span ng-repeat="participant in activeConversation.participants | notUser:user._id"> {{ participant | screenName }}</span>
-    </div>
-    <button ng-if="activeConversation.groupName" ng-click="conversationWindow.add = !conversationWindow.add">add someone</button>
-    <button ng-if="activeConversation.groupName" ng-click="leave(activeConversation.id)">leave group</button>
-    <div ng-if="conversationWindow.add">
-        <input type="text" ng-model="conversationWindow.newParticipant">
-        <button ng-click="addParticipant(activeConversation.id)">add</button>
-    </div>
-    <div ng-show="conversationWindow.showTopicChange">
-        <input type="text" ng-model="conversationWindow.topicText">
-        <button ng-click="changeTopic(activeConversation.id, conversationWindow.topicText)">Change topic</button>
-        <button ng-click="clearMessages(activeConversation.id)">Clear conversation</button>
-    </div>
-    <div ng-repeat="message in activeConversation.messages track by $index">
-        on {{ message.timestamp | date: "shortDate" }} at  {{ message.timestamp | date: "shortTime" }},
-        {{ message.sender | screenName }}
-        <span ng-if="message.system">***{{ message.message }} ***</span>
-        <span ng-if="!message.system">said: {{ message.message }} </span>
-    </div>
-    <input type="text" ng-model="conversationWindow.messageText">
-    <button ng-click="sendMessage(activeConversation.id, conversationWindow.messageText)">Send a message</button>
+        <div ng-if="activeConversation.groupName" ng-click="conversationWindow.changingName = !conversationWindow.changingName">
+            {{ activeConversation.groupName }}
+        </div>
+        <div ng-if="!activeConversation.groupName" ng-repeat="participant in activeConversation.participants | notUser:user._id">
+            Private conversation with {{ participant | screenName }}
+        </div>
+        <div ng-if="activeConversation.groupName">
+            <button ng-click="conversationWindow.add = !conversationWindow.add">add someone</button>
+            <button ng-click="leave()">leave group</button>
+            <div ng-if="conversationWindow.add">
+                <input type="text" ng-model="conversationWindow.newParticipant">
+                <button ng-click="addParticipant()">add</button>
+            </div>
+            <div ng-show="conversationWindow.changingName">
+                <input type="text" ng-model="conversationWindow.newGroupName">
+                <button ng-click="changeGroupName()">Change group name</button>
+                <button ng-click="clearMessages()">Clear conversation</button>
+            </div>
+        </div>
+        <div ng-repeat="message in activeConversation.messages track by $index">
+            on {{ message.timestamp | date: "shortDate" }} at  {{ message.timestamp | date: "shortTime" }},
+            {{ message.sender | screenName }}
+            <span ng-if="message.system">***{{ message.message }}***</span>
+            <span ng-if="!message.system">said: {{ message.message }} </span>
+        </div>
+        <input type="text" ng-model="conversationWindow.messageText">
+        <button ng-click="sendMessage()">Send a message</button>
     </div>
 </div>

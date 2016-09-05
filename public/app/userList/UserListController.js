@@ -26,7 +26,7 @@
         };
 
         $scope.groupChat = function() {
-            chatService.startConversation($scope.participants, "group chat topic", $scope.ctrl.groupName)
+            chatService.startConversation($scope.participants, $scope.ctrl.groupName)
                 .then(function (conversation) {
                     chatService.activeConversationId = conversation.id;
                     $rootScope.$emit("activeConversationChange", conversation.id);

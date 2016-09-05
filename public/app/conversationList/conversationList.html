@@ -2,9 +2,10 @@
     <h2>Conversations</h2>
     <ul>
         <li ng-repeat="conversation in conversations | orderBy: '-lastModified'" ng-click="setActiveConversation(conversation.id)">
-            {{ conversation.topic }} with 
             <span ng-if="conversation.groupName">{{ conversation.groupName }}</span>
-            <span ng-if="!conversation.groupName" ng-repeat="participant in conversation.participants | notUser:user._id"> {{ participant | screenName }}</span>
+            <span ng-if="!conversation.groupName" ng-repeat="participant in conversation.participants | notUser:user._id">
+                Private conversation with {{ participant | screenName }}
+            </span>
             <span ng-show="conversation.newMessages">***new messages***<span>
         </li>
     </ul>

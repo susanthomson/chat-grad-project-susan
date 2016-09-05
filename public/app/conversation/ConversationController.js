@@ -18,33 +18,33 @@
             }
         }
 
-        $scope.sendMessage = function(conversationId, messageText) {
-            chatService.sendMessage(conversationId, messageText)
+        $scope.sendMessage = function() {
+            chatService.sendMessage($scope.activeConversation.id, $scope.conversationWindow.messageText)
                 .then(function () {
                     updateConversation();
                     $scope.conversationWindow.messageText = "";
                 });
         };
 
-        $scope.changeTopic = function(conversationId, topicText) {
-            chatService.changeTopic(conversationId, topicText)
+        $scope.changeGroupName = function() {
+            chatService.changeGroupName($scope.activeConversation.id, $scope.conversationWindow.newGroupName)
                 .then(function () {
                     updateConversation();
-                    $scope.conversationWindow.topicText = "";
-                    $scope.conversationWindow.showTopicChange = false;
+                    $scope.conversationWindow.newGroupName = "";
+                    $scope.conversationWindow.changingName = false;
                 });
         };
 
-        $scope.clearMessages = function(conversationId) {
-            chatService.clearMessages(conversationId)
+        $scope.clearMessages = function() {
+            chatService.clearMessages($scope.activeConversation.id)
                 .then(function () {
                     updateConversation();
-                    $scope.conversationWindow.showTopicChange = false;
+                    $scope.conversationWindow.changingName = false;
                 });
         };
 
-        $scope.addParticipant = function(conversationId) {
-            chatService.addParticipants(conversationId, [$scope.conversationWindow.newParticipant])
+        $scope.addParticipant = function() {
+            chatService.addParticipants($scope.activeConversation.id, [$scope.conversationWindow.newParticipant])
                 .then(function () {
                     updateConversation();
                     $scope.conversationWindow.newParticipant = "";
@@ -52,8 +52,8 @@
                 });
         };
 
-        $scope.leave = function(conversationId) {
-            chatService.leave(conversationId)
+        $scope.leave = function() {
+            chatService.leave($scope.activeConversation.id)
                 .then(function () {
                     updateConversation();
                 });

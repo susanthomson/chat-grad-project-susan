@@ -6,10 +6,9 @@
         self.activeConversationId = undefined;
         self.lastRead = {};
 
-        self.startConversation = function(participants, topic, groupName) {
+        self.startConversation = function(participants, groupName) {
             var body = {
                 participants: participants,
-                topic: topic,
             };
             if (groupName) {
                 body.groupName = groupName;
@@ -57,7 +56,7 @@
                 .then(function(result) {
                     return result.data;
                 }).catch(function (err) {
-                    return self.startConversation([participantId], "new conversation");
+                    return self.startConversation([participantId]);
                 });
 
         };
@@ -71,9 +70,9 @@
             });
         };
 
-        self.changeTopic = function(conversationId, topic) {
+        self.changeGroupName = function(conversationId, groupName) {
             var body = {
-                topic: topic
+                groupName: groupName
             };
             return $http.put("/api/conversations/" + conversationId, body, {
                 headers: {"Content-type": "application/json"}

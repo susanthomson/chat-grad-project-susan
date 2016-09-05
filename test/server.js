@@ -31,7 +31,6 @@ var testConversation = {
         "bob",
         "charlie"
     ],
-    "topic": "fun stuff",
     "messages": [
         {
             "sender": "bob",
@@ -47,7 +46,6 @@ var testConversation2 = {
         "bob",
         "james"
     ],
-    "topic": "other stuff",
     "messages": [
         {
             "sender": "bob",
@@ -65,7 +63,6 @@ var testConversationGroup = {
         "charlie"
     ],
     "groupName": "golf buddies",
-    "topic": "other stuff",
     "messages": [
         {
             "sender": "bob",
@@ -411,7 +408,6 @@ describe("server", function() {
                             "bob",
                             "james"
                         ],
-                        "topic": "other stuff",
                         "messages": [
                             {
                                 "sender": "bob",
@@ -487,7 +483,6 @@ describe("server", function() {
                                 "bob",
                                 "charlie"
                             ],
-                            "topic": "fun stuff",
                             "messages": [
                                 {
                                     "sender": "bob",
@@ -503,7 +498,6 @@ describe("server", function() {
                                 "bob",
                                 "james"
                             ],
-                            "topic": "other stuff",
                             "messages": [
                                 {
                                     "sender": "bob",
@@ -534,7 +528,6 @@ describe("server", function() {
                                 "bob",
                                 "charlie"
                             ],
-                            "topic": "fun stuff",
                             "messages": [
                                 {
                                     "sender": "bob",
@@ -550,7 +543,6 @@ describe("server", function() {
                                 "bob",
                                 "james"
                             ],
-                            "topic": "other stuff",
                             "messages": [
                                 {
                                     "sender": "bob",
@@ -581,7 +573,6 @@ describe("server", function() {
                                 "bob",
                                 "charlie"
                             ],
-                            "topic": "fun stuff",
                             "messages": [
                                 {
                                     "sender": "bob",
@@ -644,7 +635,6 @@ describe("server", function() {
                 request({method: "POST", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
                     participants: ["charlie"],
-                    topic: "topic"
                 }),
                 headers: {"Content-type": "application/json"}},
                 function(error, response) {
@@ -652,7 +642,6 @@ describe("server", function() {
                     sinon.assert.calledOnce(dbCollections.conversations.insertOne);
                     sinon.assert.calledWith(dbCollections.conversations.insertOne, {
                         participants: ["bob", "charlie"],
-                        topic: "topic",
                         messages: [{
                             message: "started conversation",
                             sender: "bob",
@@ -672,7 +661,6 @@ describe("server", function() {
                 request({method: "POST", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
                     participants: ["participants"],
-                    topic: "topic"
                 }),
                 headers: {"Content-type": "application/json"}},
                 function(error, response) {
@@ -695,7 +683,6 @@ describe("server", function() {
                 request({method: "POST", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
                     participants: ["charlie", "james"],
-                    topic: "topic",
                     groupName: "pals"
                 }),
                 headers: {"Content-type": "application/json"}},
@@ -704,7 +691,6 @@ describe("server", function() {
                     sinon.assert.calledOnce(dbCollections.conversations.insertOne);
                     sinon.assert.calledWith(dbCollections.conversations.insertOne, {
                         participants: ["bob", "charlie", "james"],
-                        topic: "topic",
                         groupName: "pals",
                         messages: [{
                             message: "started conversation",
@@ -724,7 +710,6 @@ describe("server", function() {
                 request({method: "POST", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
                     participants: ["participants"],
-                    topic: "topic"
                 }),
                 headers: {"Content-type": "application/json"}},
                 function(error, response) {
@@ -765,13 +750,13 @@ describe("server", function() {
                 });
             });
         });
-        it("updating topic: responds with status code 200 if user is authenticated and conversation exists",
+        it("updating group name: responds with status code 200 if user is authenticated and conversation exists",
         function(done) {
             authenticateUser(testUser, testToken, function() {
                 dbCollections.conversations.findAndModify.callsArgWith(3, null, testConversation);
                 request({method: "PUT", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
-                    topic: "topic",
+                    groupName: "group name",
                 }),
                 headers: {"Content-type": "application/json"}},
                 function(error, response) {
@@ -849,7 +834,7 @@ describe("server", function() {
                 dbCollections.conversations.findAndModify.callsArgWith(3, {err: "Database failure"}, null);
                 request({method: "PUT", url: requestUrl, jar: cookieJar,
                 body: JSON.stringify({
-                    topic: "topic",
+                    participants: ["eric"],
                 }),
                 headers: {"Content-type": "application/json"}},
                 function(error, response) {

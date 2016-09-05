@@ -127,7 +127,6 @@ module.exports = function(port, db, githubAuthoriser) {
                     res.json({
                         id: conversation._id,
                         participants: conversation.participants,
-                        topic: conversation.topic,
                         messages: conversation.messages,
                         groupName: conversation.groupName
                     });
@@ -136,7 +135,6 @@ module.exports = function(port, db, githubAuthoriser) {
                         return {
                             id: conversation._id,
                             participants: conversation.participants,
-                            topic: conversation.topic,
                             messages: conversation.messages,
                             groupName: conversation.groupName
                         };
@@ -157,7 +155,6 @@ module.exports = function(port, db, githubAuthoriser) {
                 res.json({
                     id: conversation._id,
                     participants: conversation.participants,
-                    topic: conversation.topic,
                     messages: conversation.messages,
                     groupName: conversation.groupName
                 });
@@ -179,7 +176,6 @@ module.exports = function(port, db, githubAuthoriser) {
         };
         var document = {
             participants: participants,
-            topic: req.body.topic,
             messages: [{
                 sender: req.session.user,
                 message: "started conversation",
@@ -227,15 +223,21 @@ module.exports = function(port, db, githubAuthoriser) {
                 }
             };
         }
-        if (req.body.topic) {
+        if (req.body.groupName) {
+            query = {
+                _id: ObjectId(req.params.id),
+                groupName: {
+                    $exists: true
+                }
+            };
             update = {
                 $set: {
-                    topic: req.body.topic
+                    groupName: req.body.groupName
                 },
                 $push: {
                     messages: {
                         sender: req.session.user,
-                        message: "changed topic to " + req.body.topic,
+                        message: "changed group name to " + req.body.groupName,
                         system: true,
                         timestamp: Date.now()
                     }
