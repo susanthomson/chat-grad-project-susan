@@ -1,6 +1,6 @@
 /*global require:false */
 (function() {
-    var app = angular.module("ChatApp", []);
+    var app = angular.module("ChatApp", ["ngMaterial"]);
 
     require("./chatService.js");
     require("./directives.js");
