@@ -6,13 +6,14 @@
         self.activeConversationId = undefined;
         self.lastRead = {};
 
-        self.startConversation = function(userId, partnerID, topic) {
-            var participants = [userId, partnerID].sort();
+        self.startConversation = function(participants, topic, groupName) {
             var body = {
-                userId: userId,
                 participants: participants,
                 topic: topic,
             };
+            if (groupName) {
+                body.groupName = groupName;
+            }
             return $http.post("/api/conversations", body, {
                 headers: {"Content-type": "application/json"}
             }).then(function(result) {
@@ -37,8 +38,8 @@
             }).name;
         };
 
-        self.getConversations = function(userId) {
-            return $http.get("/api/conversations?participant=" + userId)
+        self.getConversations = function() {
+            return $http.get("/api/conversations")
                 .then(function(result) {
                     return result.data;
                 });
@@ -51,19 +52,18 @@
                 });
         };
 
-        self.getConversationWith = function(userId, participantId) {
-            return $http.get("/api/conversations/?participant=" + userId + "&secondParticipant=" + participantId)
+        self.getConversationWith = function(participantId) {
+            return $http.get("/api/conversations/?participant=" + participantId)
                 .then(function(result) {
                     return result.data;
                 }).catch(function (err) {
-                    return self.startConversation(userId, participantId, "new conversation");
+                    return self.startConversation([participantId], "new conversation");
                 });
 
         };
 
-        self.sendMessage = function(userId, conversationId, messageText) {
+        self.sendMessage = function(conversationId, messageText) {
             var body = {
-                userId: userId,
                 message: messageText
             };
             return $http.put("/api/conversations/" + conversationId, body, {
@@ -71,20 +71,36 @@
             });
         };
 
-        self.changeTopic = function(userId, conversationId, topic) {
+        self.changeTopic = function(conversationId, topic) {
             var body = {
-                topic: topic,
-                userId: userId,
+                topic: topic
             };
             return $http.put("/api/conversations/" + conversationId, body, {
                 headers: {"Content-type": "application/json"}
             });
         };
 
-        self.clearMessages = function(userId, conversationId) {
+        self.clearMessages = function(conversationId) {
             var body = {
-                userId: userId,
                 messages: []
+            };
+            return $http.put("/api/conversations/" + conversationId, body, {
+                headers: {"Content-type": "application/json"}
+            });
+        };
+
+        self.addParticipants = function(conversationId, participants) {
+            var body = {
+                participants: participants
+            };
+            return $http.put("/api/conversations/" + conversationId, body, {
+                headers: {"Content-type": "application/json"}
+            });
+        };
+
+        self.leave = function(conversationId) {
+            var body = {
+                participants: "leave"
             };
             return $http.put("/api/conversations/" + conversationId, body, {
                 headers: {"Content-type": "application/json"}

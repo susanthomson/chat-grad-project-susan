@@ -103,18 +103,19 @@ module.exports = function(port, db, githubAuthoriser) {
     });
 
     app.get("/api/conversations", function(req, res) {
-        var query = {};
+        var query = {
+            participants: req.session.user
+        };
         var expectingOne = false;
-        if (req.query.secondParticipant) {
+        if (req.query.participant) {
             expectingOne = true;
             query = {
                 participants: {
-                    $all: [req.query.participant , req.query.secondParticipant]
+                    $all: [req.query.participant , req.session.user]
+                },
+                groupName: {
+                    $exists: false
                 }
-            };
-        } else if (req.query.participant) {
-            query = {
-                participants: req.query.participant
             };
         }
         conversations.find(query).toArray(function(err, docs) {
@@ -127,7 +128,8 @@ module.exports = function(port, db, githubAuthoriser) {
                         id: conversation._id,
                         participants: conversation.participants,
                         topic: conversation.topic,
-                        messages: conversation.messages
+                        messages: conversation.messages,
+                        groupName: conversation.groupName
                     });
                 } else {
                     res.json(docs.map(function(conversation) {
@@ -135,7 +137,8 @@ module.exports = function(port, db, githubAuthoriser) {
                             id: conversation._id,
                             participants: conversation.participants,
                             topic: conversation.topic,
-                            messages: conversation.messages
+                            messages: conversation.messages,
+                            groupName: conversation.groupName
                         };
                     }));
                 }
@@ -155,7 +158,8 @@ module.exports = function(port, db, githubAuthoriser) {
                     id: conversation._id,
                     participants: conversation.participants,
                     topic: conversation.topic,
-                    messages: conversation.messages
+                    messages: conversation.messages,
+                    groupName: conversation.groupName
                 });
             } else {
                 res.sendStatus(500);
@@ -164,42 +168,59 @@ module.exports = function(port, db, githubAuthoriser) {
     });
 
     app.post("/api/conversations", function(req, res) {
-        conversations.findOne({
-            participants: req.body.participants
-        },
-            function(err, doc) {
-                if (!err) {
-                    if (!doc) {
-                        conversations.insertOne({
-                            participants: req.body.participants,
-                            topic: req.body.topic,
-                            messages: [{
-                                sender: req.body.userId,
-                                message: "started conversation",
-                                system: true,
-                                timestamp: Date.now()
-                            }]
-                        }, function(err, doc) {
-                            res.status(201).json({
-                                id: doc.insertedId
-                            });
+        var participants = req.body.participants;
+        participants.push(req.session.user);
+        participants.sort();
+        var findQuery = {
+            participants: participants,
+            groupName: {
+                $exists: false
+            }
+        };
+        var document = {
+            participants: participants,
+            topic: req.body.topic,
+            messages: [{
+                sender: req.session.user,
+                message: "started conversation",
+                system: true,
+                timestamp: Date.now()
+            }]
+        };
+        if (req.body.groupName) {
+            findQuery = {
+                _id: null
+            };
+            document.groupName = req.body.groupName;
+        }
+        conversations.findOne(findQuery, function(err, doc) {
+            if (!err) {
+                if (!doc) {
+                    conversations.insertOne(document,
+                     function(err, doc) {
+                        res.status(201).json({
+                            id: doc.insertedId
                         });
-                    } else {
-                        res.sendStatus(200);
-                    }
+                    });
                 } else {
-                    res.sendStatus(500);
+                    res.sendStatus(200);
                 }
-            });
+            } else {
+                res.sendStatus(500);
+            }
+        });
     });
 
     app.put("/api/conversations/:id", function(req, res) {
+        var query = {
+            _id: ObjectId(req.params.id)
+        };
         var update = {};
         if (req.body.message) {
             update = {
                 $push: {
                     messages: {
-                        sender: req.body.userId,
+                        sender: req.session.user,
                         message: req.body.message,
                         timestamp: Date.now()
                     }
@@ -213,7 +234,7 @@ module.exports = function(port, db, githubAuthoriser) {
                 },
                 $push: {
                     messages: {
-                        sender: req.body.userId,
+                        sender: req.session.user,
                         message: "changed topic to " + req.body.topic,
                         system: true,
                         timestamp: Date.now()
@@ -225,7 +246,7 @@ module.exports = function(port, db, githubAuthoriser) {
             update = {
                 $set: {
                     messages: [{
-                        sender: req.body.userId,
+                        sender: req.session.user,
                         message: "cleared conversation",
                         system: true,
                         timestamp: Date.now()
@@ -233,15 +254,41 @@ module.exports = function(port, db, githubAuthoriser) {
                 }
             };
         }
+        if (req.body.participants) {
+            query = {
+                _id: ObjectId(req.params.id),
+                groupName: {
+                    $exists: true
+                }
+            };
+            if (req.body.participants === "leave") {
+                update = {
+                    $pull: {
+                        participants: req.session.user
+                    }
+                };
+            } else {
+                update = {
+                    $push: {
+                        participants: {
+                            $each: req.body.participants
+                        }
+                    }
+                };
+            }
+        }
         conversations.findAndModify(
-            {
-                _id: ObjectId(req.params.id)
-            },
+            query,
             [],
             update,
-            function(err, docs) {
+            function(err, doc) {
                 if (!err) {
-                    res.json(docs);
+                    if (doc) {
+                        res.json(doc);
+                    }
+                    else {
+                        res.sendStatus(404);
+                    }
                 } else {
                     res.sendStatus(500);
                 }

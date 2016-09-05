@@ -5,6 +5,12 @@
         {{ activeConversation.topic }} with
         <span ng-repeat="participant in activeConversation.participants | notUser:user._id"> {{ participant | screenName }}</span>
     </div>
+    <button ng-if="activeConversation.groupName" ng-click="conversationWindow.add = !conversationWindow.add">add someone</button>
+    <button ng-if="activeConversation.groupName" ng-click="leave(activeConversation.id)">leave group</button>
+    <div ng-if="conversationWindow.add">
+        <input type="text" ng-model="conversationWindow.newParticipant">
+        <button ng-click="addParticipant(activeConversation.id)">add</button>
+    </div>
     <div ng-show="conversationWindow.showTopicChange">
         <input type="text" ng-model="conversationWindow.topicText">
         <button ng-click="changeTopic(activeConversation.id, conversationWindow.topicText)">Change topic</button>

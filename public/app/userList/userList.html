@@ -1,4 +1,10 @@
 <div>
+    <button ng-if="!ctrl.adding" ng-click="ctrl.adding = !ctrl.adding">group chat</button>
+    <div ng-if="ctrl.adding">
+        <div ng-repeat="participant in participants">{{ participant | screenName }}</div>
+        group name <input type="text" ng-model="ctrl.groupName">
+        <button ng-click="groupChat()">start chat</button>
+    </div>
     <h2 ng-click="showSearch = !showSearch">List of registered users</h2>
         <div ng-show="showSearch">
             search <input type="text" ng-model="searchText">
@@ -6,7 +12,8 @@
     <ul>
         <li ng-repeat="usero in users | filter:searchText">
             {{usero.name}}
-            <button ng-if="usero.name!=user.name" ng-click="chat(usero.id)">chat</button>
+            <button ng-if="usero.name!=user.name && !ctrl.adding" ng-click="chat(usero.id)">chat</button>
+            <button ng-if="usero.name!=user.name && ctrl.adding" ng-click="addToChat(usero.id)">add to chat</button>
         </li>
     </ul>
 </div>
