@@ -6,8 +6,7 @@
         $mdThemingProvider.registerStyles(require("./chatApp.scss"));
         $mdThemingProvider.theme("docs-dark", "default")
         .dark();
-
-  });
+    });
 
     require("./chatService.js");
     require("./directives.js");
