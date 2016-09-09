@@ -34,4 +34,16 @@
         };
     });
 
+    app.directive("speechBubble", function() {
+        return {
+            scope: {
+                bubble: "@bubble",
+                speechy: "@speechy"
+            },
+            templateUrl: "app/speechBubble/speechBubble.html",
+            replace: true,
+            controller: "SpeechBubbleController"
+        };
+    });
+
 })();

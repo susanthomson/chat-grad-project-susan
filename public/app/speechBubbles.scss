@@ -1,0 +1,123 @@
+/* =====================================================================
+adapted from PURE CSS SPEECH BUBBLES
+by Nicolas Gallagher
+- http://nicolasgallagher.com/pure-css-speech-bubbles/
+http://nicolasgallagher.com
+http://twitter.com/necolas
+Created: 02 March 2010
+Version: 1.2 (03 March 2011)
+Dual licensed under MIT and GNU GPLv2 Nicolas Gallagher
+** ===================================================================== */
+$border-width: 2px;
+$border-colour-left: inherit;
+$border-colour-right: inherit;
+$outside-colour: #fafafa;
+$inside-colour: #eeeeee;
+$padding: 1em;
+$tail-point: 25px;
+$tail-left: 10px;
+$tail-right: 30px;
+$tail-height: 20px;
+
+@mixin speech-border($border-colour) {
+  position:relative;
+  padding:0.25 * $padding $padding;
+  margin:0 0 0.25em;
+  border-width:$border-width;
+  border-style: solid;
+  border-color: $border-colour;
+  text-align:center;
+  color:#333;
+  background:$inside-colour;
+  border-radius:10px;
+  min-width: 100px;
+  width: -webkit-max-content;
+}
+
+.speech-left {
+  @include speech-border($border-colour-left)
+}
+
+.speech-right {
+  @include speech-border($border-colour-right)
+}
+
+@mixin tail-curve($border-colour) {
+  content:"";
+  position:absolute;
+  z-index:10;
+  bottom:-$tail-height - $border-width;
+  height:$tail-height - $border-width;
+  border-style:solid;
+  border-color:$border-colour;
+  background:transparent;
+}
+
+@mixin tail-curve-left($horizontal, $vertical) {
+  left:$tail-point;
+  border-width:0 $border-width $border-width 0;
+  border-bottom-right-radius:$horizontal $vertical;
+}
+
+/* creates larger curve */
+  .speech-left:before {
+      @include tail-curve($border-colour-left);
+      @include tail-curve-left(80px, 50px);
+      width:$tail-right;
+      background-color: $inside-colour;
+  }
+
+
+/* creates smaller curve */
+  .speech-left:after {
+      @include tail-curve($border-colour-left);
+      @include tail-curve-left(40px, 50px);
+      width:$tail-left;
+      background-color: $outside-colour;
+      border-width:$border-width $border-width $border-width 0;
+  }
+
+@mixin tail-curve-right($horizontal, $vertical) {
+  right:$tail-point;
+  border-width:0 0 $border-width $border-width;
+  border-bottom-left-radius:$horizontal $vertical;
+}
+
+/* creates larger curve */
+.speech-right:before {
+    @include tail-curve($border-colour-right);
+    @include tail-curve-right(80px, 50px);
+    width:$tail-right;
+    background-color: $inside-colour;
+}
+
+
+/* creates smaller curve */
+.speech-right:after {
+    @include tail-curve($border-colour-right);
+    @include tail-curve-right(40px, 50px);
+    width:$tail-left;
+    background-color: $outside-colour;
+    border-width:$border-width 0 $border-width $border-width;
+}
+
+@mixin white-rectangle() {
+    content:"";
+    position:absolute;
+    bottom:-$border-width - 1;
+    width:$tail-right - $tail-left;
+    height: $border-width + 2;
+    background:$inside-colour;   
+}
+
+/* creates a white rectangle to cover part of the oval border*/
+.speech-left > :first-child:after {
+    @include white-rectangle();
+    left:$tail-point + $tail-left;
+} 
+
+/* creates a white rectangle to cover part of the oval border*/
+.speech-right > :first-child:after {
+    @include white-rectangle();
+    right:$tail-point + $tail-left;
+}
