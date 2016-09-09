@@ -37,6 +37,12 @@
             }).name;
         };
 
+        self.avatar  = function(userId) {
+            return self.users.find(function(user) {
+                return user.id === userId;
+            }).avatarUrl;
+        };
+
         self.getConversations = function() {
             return $http.get("/api/conversations")
                 .then(function(result) {
