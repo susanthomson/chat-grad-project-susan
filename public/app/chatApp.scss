@@ -1,0 +1,114 @@
+
+html, body {
+    height:100%;
+}
+
+/*hide scrollbars*/
+::-webkit-scrollbar { 
+    display: none; 
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    height:100%;
+}
+
+.fullheight {
+    height:100%; 
+}
+
+.other-message {
+    text-align: left;
+}
+
+.user-message {
+    text-align: right;
+}
+
+.system-message {
+    text-align: center;
+}
+
+/*hide error spacer for alignment on forms with no errors*/
+md-input-container.hide-error-msg .md-errors-spacer:empty {
+    display: none; 
+}
+
+/*speech bubbles*/
+$tail-length:1.25em;
+$tail-overlap:0.625em;
+$tail-height:1.25em;
+
+@mixin speech-box {
+    margin: 0.5em 0;
+    display: flex;
+}
+
+.speech-box-right {
+    @include speech-box();
+    flex-direction: row;
+}
+
+.speech-box-left {
+    @include speech-box();
+    flex-direction: row-reverse;
+}
+
+.speech-padding {
+    content: '';
+    flex: 1 1 auto;
+}
+
+@mixin speech-bubble() {
+    z-index: 10;
+    padding:0.5em 1em;
+    background-color: inherit;
+    border-radius: $tail-length;
+    max-width: 70%;
+    min-height: $tail-height;
+}
+
+.speech-right {
+    @include speech-bubble();
+    margin-right: - $tail-length + $tail-overlap;
+    margin-left: $tail-length;
+}
+
+.speech-left {
+    @include speech-bubble();
+    margin-left: - $tail-length + $tail-overlap;
+    margin-right: $tail-length;
+}
+
+@mixin tail() {
+    height:$tail-height;
+    flex:0 0 $tail-length;
+    align-self:flex-end;
+    background-color:inherit;
+}
+
+.speech-right-tail {
+    @include tail();
+    border-bottom-left-radius:$tail-length;
+    z-index: 5;
+    margin-right: -$tail-overlap;
+}
+
+.speech-right-tail-hider {
+    @include tail();
+    border-bottom-left-radius:$tail-length;
+    z-index: 15;
+}
+
+.speech-left-tail {
+    @include tail();
+    border-bottom-right-radius:$tail-length;
+    z-index: 5;
+    margin-left: -$tail-overlap;
+}
+
+.speech-left-tail-hider {
+    @include tail();
+    border-bottom-right-radius:$tail-length;
+    z-index: 15;
+}
