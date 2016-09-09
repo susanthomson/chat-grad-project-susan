@@ -15,4 +15,10 @@
         };
     }]);
 
+    app.filter("avatar", ["chatService", function(chatService) {
+        return function(userId) {
+            return chatService.avatar(userId);
+        };
+    }]);
+
 })();
