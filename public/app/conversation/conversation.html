@@ -1,38 +1,79 @@
-<div style="border-style: solid">
-    <div ng-if="activeConversation">
-        <div layout="row" layout-wrap>
-            <div flex="100">
-                <div ng-if="activeConversation.groupName" ng-click="conversationWindow.changingName = !conversationWindow.changingName">
-                    {{ activeConversation.groupName }}
-                </div>
-                <div ng-if="!activeConversation.groupName" ng-repeat="participant in activeConversation.participants | notCurrentUser:user._id">
-                    Private conversation with {{ participant | screenName }}
-                </div>
+<div class="fullheight">
+    <div class="fullheight" ng-show="activeConversation" layout=column>
+        <md-toolbar class="md-hue-2">
+            <div class="md-toolbar-tools">
+                <span ng-if="activeConversation.groupName && !conversationWindow.changingName">
+                    <h2 ng-click="changingName()">{{ activeConversation.groupName }}</h2>
+                </span>
+                <span ng-if="conversationWindow.changingName">
+                    <form ng-submit="changeGroupName()"> 
+                    <md-input-container md-theme="docs-dark" class="hide-error-msg">
+                        <input type="text" ng-model="conversationWindow.newGroupName" ng-blur="stopChangingName()">
+                    </md-input-container>
+                    </form>
+                </span>
+                <span ng-if="!activeConversation.groupName">
+                    <h2>Private conversation with {{ (activeConversation.participants | notCurrentUser:user._id)[0] | screenName }}</h2>
+                </span>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="clearMessages()">
+                    <ng-md-icon icon="delete" md-colors="{fill: 'accent-A200'}"></ng-md-icon>
+                    <md-tooltip>clear conversation history</md-tooltip>
+                </md-button>
             </div>
-            <div flex="80">
-                <div ng-repeat="message in activeConversation.messages track by $index">
-                    on {{ message.timestamp | date: "shortDate" }} at  {{ message.timestamp | date: "shortTime" }},
-                    {{ message.sender | screenName }}
-                    <span ng-if="message.system">***{{ message.message }}***</span>
-                    <span ng-if="!message.system">said: {{ message.message }} </span>
-                </div>
-                <input type="text" ng-model="conversationWindow.messageText">
-                <button ng-click="sendMessage()">Send a message</button>
+        </md-toolbar>
+        <div flex layout="row">
+            <div flex layout="column">
+                <md-content flex class="fullheight" id="message-box">
+                    <div ng-repeat="message in activeConversation.messages">
+                        <md-subheader ng-if="message.system" class="md-no-sticky system-message">
+                            {{ message.sender | screenName }} {{ message.message }}
+                            on {{ message.timestamp | date: "shortDate" }} at  {{ message.timestamp | date: "shortTime" }}
+                        </md-subheader>
+                        <div ng-if="!message.system">
+                            <speech-bubble bubble="{{(message.sender===user._id)? 'right' : 'left'}}" speechy="{{message.message}}"></speech-bubble>
+                            <div class="md-subheader {{(message.sender===user._id)? 'user-message' : 'other-message'}}">
+                                {{ message.sender | screenName }} on {{ message.timestamp | date: "shortDate" }} at  {{ message.timestamp | date: "shortTime" }}
+                            </div>
+                        </div>
+                    </div>
+                </md-content>
+                <form ng-submit="sendMessage()">
+                    <div layout="row">
+                        <md-input-container class="hide-error-msg md-block" flex="">
+                            <input aria-label="type message here" type="text" ng-model="conversationWindow.messageText" autocomplete="off">
+                        </md-input-container>
+                        <md-button class="md-icon-button" type="submit">
+                            <ng-md-icon icon="send" md-colors="{fill: 'accent-A200'}" size="34"></ng-md-icon>
+                            <md-tooltip>send a message</md-tooltip>
+                        </md-button>
+                    </div>
+                </form>
             </div>
-            <div flex="20">
-                <div ng-if="activeConversation.groupName">
-                    <div ng-repeat="participant in activeConversation.participants">{{ participant | screenName }}</div>
-                    <button ng-click="conversationWindow.add = !conversationWindow.add">add someone</button>
-                    <button ng-click="leave()">leave group</button>
-                    <div ng-if="conversationWindow.add">
-                        <input type="text" ng-model="conversationWindow.newParticipant">
-                        <button ng-click="addParticipant()">add</button>
-                    </div>
-                    <div ng-show="conversationWindow.changingName">
-                        <input type="text" ng-model="conversationWindow.newGroupName">
-                        <button ng-click="changeGroupName()">Change group name</button>
-                        <button ng-click="clearMessages()">Clear conversation</button>
-                    </div>
+            <div flex="20" ng-if="activeConversation.groupName">
+                <md-toolbar class="md-toolbar-tools">
+                    <h2 class="md-toolbar-tools">Participants</h2>
+                    <md-button class="md-icon-button" ng-click="conversationWindow.add = !conversationWindow.add">
+                        <ng-md-icon icon="add" md-colors="{fill: 'accent-A200'}"></ng-md-icon>
+                        <md-tooltip>add someone to conversation</md-tooltip>
+                    </md-button>
+                    <md-button class="md-icon-button" ng-click="leave()">
+                        <ng-md-icon icon="remove" md-colors="{fill: 'accent-A200'}"></ng-md-icon>
+                        <md-tooltip>leave conversation</md-tooltip>
+                    </md-button>
+                </md-toolbar>
+                <md-list>
+                    <md-list-item class="md-2-line" ng-repeat="participant in activeConversation.participants" ng-click="null">
+                        <img ng-src="{{participant | avatar}}" class="md-avatar" alt="{{participant}}">
+                        <div class="md-list-item-text">
+                            <h3>{{ participant | screenName }}</h3>
+                            <p>{{ participant }}</p>
+                        </div>
+                    </md-list-item>
+                </md-list>
+                <div ng-if="conversationWindow.add">
+                    <input type="text" ng-model="conversationWindow.newParticipant">
+                    <button ng-click="addParticipant()">add</button>
                 </div>
             </div>
         </div>
