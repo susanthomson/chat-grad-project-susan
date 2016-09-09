@@ -1,12 +1,12 @@
 <div>
-    <h2>Conversations</h2>
-    <ul>
-        <li ng-repeat="conversation in conversations | orderBy: '-lastModified'" ng-click="setActiveConversation(conversation.id)">
-            <span ng-if="conversation.groupName">{{ conversation.groupName }}</span>
-            <span ng-if="!conversation.groupName" ng-repeat="participant in conversation.participants | notUser:user._id">
-                Private conversation with {{ participant | screenName }}
-            </span>
-            <span ng-show="conversation.newMessages">***new messages***<span>
-        </li>
-    </ul>
+    <md-toolbar class="md-hue-2">
+        <h2 class="md-toolbar-tools">Conversations</h2>
+    </md-toolbar>
+    <md-list>
+        <md-list-item ng-repeat="conversation in conversations | orderBy: '-lastModified'" ng-click="setActiveConversation(conversation.id)">
+            <img ng-src="{{conversation.avatarUrl}}" class="md-avatar" alt="unhelpful">
+            <span> {{ conversation.name }} </span>
+            <ng-md-icon ng-show="conversation.newMessages" class="md-secondary" icon="message" md-colors="{fill: 'accent-A200'}"></ng-md-icon>
+        </md-list-item>
+    <md-list>
 </div>
