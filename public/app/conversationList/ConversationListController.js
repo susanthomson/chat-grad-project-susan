@@ -1,7 +1,7 @@
 (function() {
     var app = angular.module("ChatApp");
-    app.controller("ConversationListController", ["$scope", "$rootScope", "chatService", "notUserFilter",
-    function($scope, $rootScope, chatService, notUserFilter) {
+    app.controller("ConversationListController", ["$scope", "$rootScope", "chatService", "notCurrentUserFilter",
+    function($scope, $rootScope, chatService, notCurrentUserFilter) {
 
         function getConversations() {
             return chatService.getConversations()
@@ -23,7 +23,7 @@
             if (conversation.groupName) {
                 return conversation.groupName;
             } else {
-                var userName = notUserFilter(conversation.participants, $scope.user._id)[0];
+                var userName = notCurrentUserFilter(conversation.participants, $scope.user._id)[0];
                 return chatService.screenName(userName);
             }
         }
@@ -32,7 +32,7 @@
             if (conversation.groupName) {
                 return "https://upload.wikimedia.org/wikipedia/commons/3/34/Red-crested_Turaco_RWD.jpg";
             } else {
-                var userName = notUserFilter(conversation.participants, $scope.user._id)[0];
+                var userName = notCurrentUserFilter(conversation.participants, $scope.user._id)[0];
                 return chatService.avatar(userName);
             }
         }

@@ -1,7 +1,7 @@
 (function() {
     var app = angular.module("ChatApp");
 
-    app.filter("notUser", function () {
+    app.filter("notCurrentUser", function () {
         return function (participants, userId) {
             return participants.filter(function(participant) {
                 return participant !== userId;

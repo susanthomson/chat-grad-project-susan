@@ -5,7 +5,7 @@
                 <div ng-if="activeConversation.groupName" ng-click="conversationWindow.changingName = !conversationWindow.changingName">
                     {{ activeConversation.groupName }}
                 </div>
-                <div ng-if="!activeConversation.groupName" ng-repeat="participant in activeConversation.participants | notUser:user._id">
+                <div ng-if="!activeConversation.groupName" ng-repeat="participant in activeConversation.participants | notCurrentUser:user._id">
                     Private conversation with {{ participant | screenName }}
                 </div>
             </div>
