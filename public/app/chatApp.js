@@ -1,5 +1,9 @@
 /*global require:false */
 (function() {
+    require("angular");
+    require("angular-material");
+    require("angular-material-icons");
+
     var app = angular.module("ChatApp", ["ngMaterial", "ngMdIcons"])
     .config(function($mdThemingProvider) {
 
