@@ -2,6 +2,9 @@
   "name": "chat-grad-project",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "4.4.7"
+  },
   "main": "server.js",
   "scripts": {
     "test": "grunt test",
