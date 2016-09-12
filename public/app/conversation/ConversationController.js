@@ -5,6 +5,8 @@
 
         $rootScope.$on("activeConversationChange", updateConversation);
         $scope.conversationWindow = {};
+        $scope.newParticipants = [];
+
         var messageBox = document.getElementById("message-box");
         messageBox.onscroll = function() {
             clearInterval(scrolling);
@@ -12,6 +14,15 @@
                 scrolling = setInterval(scrollToBottom, 500);
             }
         };
+
+        function getUsers() {
+            return chatService.getUsers()
+                .then(function(users) {
+                    $scope.users = users;
+                });
+        }
+
+        getUsers();
 
         function scrollToBottom() {
             messageBox.scrollTop = messageBox.scrollHeight;
@@ -52,7 +63,6 @@
             chatService.changeGroupName($scope.activeConversation.id, $scope.conversationWindow.newGroupName)
                 .then(function () {
                     updateConversation();
-                    $scope.conversationWindow.newGroupName = "";
                     $scope.conversationWindow.changingName = false;
                 });
         };
@@ -65,12 +75,24 @@
         };
 
         $scope.addParticipant = function() {
-            chatService.addParticipants($scope.activeConversation.id, [$scope.conversationWindow.newParticipant])
+            $scope.users.forEach(function(user) {
+                if (user.selected) {
+                    $scope.newParticipants.push(user.id);
+                }
+            });
+            chatService.addParticipants($scope.activeConversation.id, $scope.newParticipants)
                 .then(function () {
                     updateConversation();
-                    $scope.conversationWindow.newParticipant = "";
                     $scope.conversationWindow.add = false;
                 });
+        };
+
+        $scope.inConversation = function(userId) {
+            if ($scope.activeConversation.participants.indexOf(userId) >= 0) {
+                return true;
+            } else {
+                return false;
+            }
         };
 
         $scope.leave = function() {

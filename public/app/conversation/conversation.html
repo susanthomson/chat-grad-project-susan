@@ -72,8 +72,20 @@
                     </md-list-item>
                 </md-list>
                 <div ng-if="conversationWindow.add">
-                    <input type="text" ng-model="conversationWindow.newParticipant">
-                    <button ng-click="addParticipant()">add</button>
+                    <div layout="column">
+                        <md-input-container class="hide-error-msg md-block">
+                            <input type="text" ng-model="searchText">
+                        </md-input-container>
+                        <md-button class="md-accent md-raised md-hue-1" ng-click="addParticipant()">add</md-button>
+                        <md-list>
+                            <md-list-item ng-show="!inConversation(usero.id)" ng-repeat="usero in users | filter:{name: searchText}" 
+                            ng-click="usero.selected=!usero.selected" class="noright">
+                                <img alt="{{ usero.name }}" ng-src="{{ usero.avatarUrl }}" class="md-avatar">
+                                <p>{{ usero.name }}</p>
+                                <md-checkbox class="md-secondary" ng-model="usero.selected"></md-checkbox>
+                            </md-list-item>   
+                        </md-list>
+                    </div>
                 </div>
             </div>
         </div>
