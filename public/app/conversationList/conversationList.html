@@ -1,7 +1,4 @@
 <div>
-    <md-toolbar class="md-hue-2">
-        <h2 class="md-toolbar-tools">Conversations</h2>
-    </md-toolbar>
     <md-list>
         <md-list-item ng-repeat="conversation in conversations | orderBy: '-lastModified'" ng-click="setActiveConversation(conversation.id)">
             <img ng-src="{{conversation.avatarUrl}}" class="md-avatar" alt="unhelpful">

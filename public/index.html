@@ -11,11 +11,22 @@
         <section class="container" ng-if="loggedIn"> 
             <md-subheader>Logged in as {{user.name}}.</md-subheader>
             <!-- <chat-app-user-list user="user"></chat-app-user-list> -->
-            <div flex layout="row" layout-wrap>
-                <div flex="20">
-                    <chat-app-conversation-list user="user"></chat-app-conversation-list>
-                </div>
-                <div flex>
+            <div flex layout="row" class="fullheight" layout-wrap>
+                <md-tabs flex="20" class="fullheight">
+                    <md-tab class="fullheight">
+                        <md-tab-label>conversations</md-tab-label>
+                        <md-tab-body>
+                            <chat-app-conversation-list user="user"></chat-app-conversation-list>
+                        </md-tab-body>
+                    </md-tab>
+                    <md-tab class="fullheight">
+                        <md-tab-label>user list</md-tab-label>
+                        <md-tab-body>
+                            <chat-app-user-list user="user"></chat-app-user-list>
+                        </md-tab-body>
+                    </md-tab>
+                </md-tabs>
+                <div flex class="fullheight">
                     <chat-app-conversation user="user"></chat-app-conversation>
                 </div>
             </div>
