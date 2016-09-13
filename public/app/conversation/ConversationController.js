@@ -3,7 +3,7 @@
     app.controller("ConversationController", ["$scope", "$rootScope", "chatService",
     function($scope, $rootScope, chatService, $mdColors) {
 
-        $rootScope.$on("activeConversationChange", updateConversation);
+        $rootScope.$on("activeConversationChange", $scope.updateConversation);
         $scope.conversationWindow = {};
         $scope.newParticipants = [];
 
@@ -28,24 +28,10 @@
             messageBox.scrollTop = messageBox.scrollHeight;
         }
 
-        function updateConversation() {
-            if (chatService.activeConversationId) {
-                chatService.getConversation(chatService.activeConversationId).then(
-                    function (conversation) {
-                        $scope.activeConversation = conversation;
-                        chatService.lastRead[conversation.id] = conversation.messages[conversation.messages.length - 1]
-                            .timestamp;
-                    }
-                );
-            } else {
-                $scope.activeConversation = undefined;
-            }
-        }
-
         $scope.sendMessage = function() {
             chatService.sendMessage($scope.activeConversation.id, $scope.conversationWindow.messageText)
                 .then(function () {
-                    updateConversation();
+                    $scope.updateConversation();
                     $scope.conversationWindow.messageText = "";
                 });
         };
@@ -62,7 +48,7 @@
         $scope.changeGroupName = function() {
             chatService.changeGroupName($scope.activeConversation.id, $scope.conversationWindow.newGroupName)
                 .then(function () {
-                    updateConversation();
+                    $scope.updateConversation();
                     $scope.conversationWindow.changingName = false;
                 });
         };
@@ -70,7 +56,7 @@
         $scope.clearMessages = function() {
             chatService.clearMessages($scope.activeConversation.id)
                 .then(function () {
-                    updateConversation();
+                    $scope.updateConversation();
                 });
         };
 
@@ -82,7 +68,7 @@
             });
             chatService.addParticipants($scope.activeConversation.id, $scope.newParticipants)
                 .then(function () {
-                    updateConversation();
+                    $scope.updateConversation();
                     $scope.conversationWindow.add = false;
                 });
         };
@@ -100,11 +86,10 @@
                 .then(function () {
                     chatService.activeConversationId = undefined;
                     $rootScope.$emit("activeConversationChange", undefined);
-                    updateConversation();
+                    $scope.updateConversation();
                 });
         };
 
-        var id = setInterval(updateConversation, 1000);
         var scrolling = setInterval(scrollToBottom, 500);
 
     }]);

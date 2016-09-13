@@ -4,7 +4,9 @@
     app.directive("chatAppConversation", function() {
         return {
             scope: {
-                user: "="
+                user: "=",
+                activeConversation: "=",
+                updateConversation: "="
             },
             templateUrl: "app/conversation/conversation.html",
             replace: true,
@@ -26,7 +28,8 @@
     app.directive("chatAppUserList", function() {
         return {
             scope: {
-                user: "="
+                user: "=",
+                activeConversation: "="
             },
             templateUrl: "app/userList/userList.html",
             replace: true,

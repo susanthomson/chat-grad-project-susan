@@ -17,7 +17,7 @@
                     <md-tab class="fullheight">
                         <md-tab-label>user list</md-tab-label>
                         <md-tab-body>
-                            <chat-app-user-list user="user"></chat-app-user-list>
+                            <chat-app-user-list user="user" active-conversation="activeConversation"></chat-app-user-list>
                         </md-tab-body>
                     </md-tab>
                     <md-tab class="fullheight">
@@ -28,7 +28,7 @@
                     </md-tab>
                 </md-tabs>
                 <div flex class="fullheight">
-                    <chat-app-conversation user="user"></chat-app-conversation>
+                    <chat-app-conversation user="user" active-conversation="activeConversation" update-conversation="updateConversation"></chat-app-conversation>
                 </div>
             </div>
         </section>
