@@ -14,9 +14,10 @@
                 <md-icon md-colors="{color: 'accent-A200'}">chat_bubble_outline</md-icon>
                 <md-tooltip>chat with {{ usero.name }}</md-tooltip>
             </md-button>
-            <md-button class="small-button" ng-if="usero.id!=user._id" ng-click="addToChat(usero.id)" class="md-secondary">
+            <md-button class="small-button" ng-if="activeConversation.groupName" 
+            ng-style="{'visibility': canBeAdded(usero.id) ? 'visible' : 'hidden'}" ng-click="addToChat(usero.id)" class="md-secondary">
                 <md-icon md-colors="{color: 'accent-A200'}">group_add</md-icon>
-                <md-tooltip>add {{ usero.name }} to chat</md-tooltip>
+                <md-tooltip>add {{ usero.name }} to {{ activeConversation.groupName }}</md-tooltip>
             </md-button>
         </md-list-item>
     <md-list>

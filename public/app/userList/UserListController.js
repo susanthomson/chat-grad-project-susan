@@ -34,5 +34,20 @@
             }
         };
 
+        $scope.canBeAdded = function(participantId) {
+            var inConversation = false;
+            if ($scope.activeConversation) {
+                if ($scope.activeConversation.groupName) {
+                    if ($scope.activeConversation.participants.indexOf(participantId) < 0) {
+                        inConversation = true;
+                    }
+                }
+            }
+            if (participantId === $scope.user._id) {
+                inConversation = false;
+            }
+            return inConversation;
+        };
+
     }]);
 })();
