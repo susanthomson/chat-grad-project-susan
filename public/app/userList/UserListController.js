@@ -3,11 +3,6 @@
     app.controller("UserListController", ["$scope", "$rootScope", "chatService",
     function($scope, $rootScope, chatService) {
 
-        $scope.ctrl = {
-            adding: false
-        };
-        $scope.participants = [];
-
         function getUsers() {
             return chatService.getUsers()
                 .then(function(users) {
@@ -26,17 +21,17 @@
         };
 
         $scope.groupChat = function() {
-            chatService.startConversation($scope.participants, $scope.ctrl.groupName)
+            chatService.startConversation([], "new group")
                 .then(function (conversation) {
                     chatService.activeConversationId = conversation.id;
                     $rootScope.$emit("activeConversationChange", conversation.id);
-                    $scope.ctrl.groupName = "";
-                    $scope.ctrl.adding = false;
                 });
         };
 
         $scope.addToChat = function(participantId) {
-            $scope.participants.push(participantId);
+            if (chatService.activeConversationId) {
+                chatService.addParticipants(chatService.activeConversationId, [participantId]);
+            }
         };
 
     }]);

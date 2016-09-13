@@ -7,6 +7,11 @@ html, body {
 ::-webkit-scrollbar { 
     display: none; 
 }
+
+.small-button {
+    min-width: 24px;
+}
+
 .container {
     display: flex;
     flex-direction: column;

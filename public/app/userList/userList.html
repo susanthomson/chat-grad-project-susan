@@ -1,19 +1,23 @@
 <div>
-    <button ng-if="!ctrl.adding" ng-click="ctrl.adding = !ctrl.adding">group chat</button>
-    <div ng-if="ctrl.adding">
-        <div ng-repeat="participant in participants">{{ participant | screenName }}</div>
-        group name <input type="text" ng-model="ctrl.groupName">
-        <button ng-click="groupChat()">start chat</button>
-    </div>
-    <h2 ng-click="showSearch = !showSearch">List of registered users</h2>
-        <div ng-show="showSearch">
-            search <input type="text" ng-model="searchText">
-        </div>
-    <ul>
-        <li ng-repeat="usero in users | filter:searchText">
-            {{usero.name}}
-            <button ng-if="usero.name!=user.name && !ctrl.adding" ng-click="chat(usero.id)">chat</button>
-            <button ng-if="usero.name!=user.name && ctrl.adding" ng-click="addToChat(usero.id)">add to chat</button>
-        </li>
-    </ul>
+    <md-list>
+        <md-list-item class="md-2-line" ng-repeat="usero in users | filter:searchText" ng-click="null">
+            <img ng-src="{{usero.id | avatar}}" class="md-avatar" alt="{{usero.name}}">
+            <div class="md-list-item-text">
+                <h3>{{ usero.name }}</h3>
+                <p>{{ usero.id }}</p>
+            </div>
+            <md-button class="small-button" ng-if="usero.id===user._id" ng-click="groupChat()" class="md-secondary">
+                <md-icon md-colors="{color: 'accent-A200'}">group</md-icon>
+                <md-tooltip>start new group chat</md-tooltip>
+            </md-button>
+            <md-button class="small-button" ng-if="usero.id!=user._id" ng-click="chat(usero.id)" class="md-secondary">
+                <md-icon md-colors="{color: 'accent-A200'}">chat_bubble_outline</md-icon>
+                <md-tooltip>chat with {{ usero.name }}</md-tooltip>
+            </md-button>
+            <md-button class="small-button" ng-if="usero.id!=user._id" ng-click="addToChat(usero.id)" class="md-secondary">
+                <md-icon md-colors="{color: 'accent-A200'}">group_add</md-icon>
+                <md-tooltip>add {{ usero.name }} to chat</md-tooltip>
+            </md-button>
+        </md-list-item>
+    <md-list>
 </div>
