@@ -14,8 +14,8 @@
                     chatService.getConversation(chatService.activeConversationId).then(
                         function (conversation) {
                             $scope.activeConversation = conversation;
-                            chatService.lastRead[conversation.id] = conversation.messages[conversation.messages.length - 1]
-                            .timestamp;
+                            chatService.lastRead[conversation.id] =
+                                conversation.messages[conversation.messages.length - 1].timestamp;
                         }
                     );
                 } else {

@@ -3,7 +3,7 @@
         <md-list-item ng-repeat="conversation in conversations | orderBy: '-lastModified'" ng-click="setActiveConversation(conversation.id)">
             <img ng-src="{{conversation.avatarUrl}}" class="md-avatar" alt="unhelpful">
             <span> {{ conversation.name }} </span>
-            <ng-md-icon ng-show="conversation.newMessages" class="md-secondary" icon="message" md-colors="{fill: 'accent-A200'}"></ng-md-icon>
+            <md-icon ng-show="conversation.newMessages" class="md-secondary" icon="message" md-colors="{color: 'accent-A200'}">message</md-icon>
         </md-list-item>
     <md-list>
 </div>
