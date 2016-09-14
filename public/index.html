@@ -9,9 +9,14 @@
     </head>
     <body ng-controller="ChatController">
         <a ng-show="!loggedIn" href="{{loginUri}}">Log in</a>
-        <section class="container" ng-if="loggedIn"> 
-            <md-subheader>Logged in as {{user.name}}.</md-subheader>
-            <!-- <chat-app-user-list user="user"></chat-app-user-list> -->
+        <section class="container" ng-if="loggedIn">
+            <div layout="row" style="align-items: center">
+                <md-button class="md-icon-button" ng-click="showProfile($event)">
+                    <md-icon md-colors="{color: 'accent-A200'}" >account_circle</md-icon>
+                    <md-tooltip>view profile</md-tooltip>
+                </md-button>
+                <div class="md-subheader">Logged in as {{user.name}}.</div>
+            </div>
             <div flex layout="row" class="fullheight" layout-wrap>
                 <md-tabs flex="20" class="fullheight">
                     <md-tab class="fullheight">
